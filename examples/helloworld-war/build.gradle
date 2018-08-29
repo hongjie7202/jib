@@ -1,0 +1,39 @@
+       buildscript {
+            repositories {
+                mavenLocal() // resolve in ~/.m2/repository
+                mavenCentral()
+            }
+            dependencies {
+                classpath 'com.google.cloud.tools:jib-gradle-plugin:0.9.10-SNAPSHOT'
+            }
+        }
+
+        plugins {
+            // id 'com.google.cloud.tools.jib' version '0.9.10'
+        }
+
+        // Applies the java plugin after Jib to make sure it works in this order.
+        apply plugin: 'com.google.cloud.tools.jib' // must explicitly apply local
+        //apply plugin: 'java'
+        apply plugin: 'war'
+
+//plugins {
+//  id 'java'
+//  id 'com.google.cloud.tools.jib' version '0.9.9-SNAPSHOT'
+//}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  // Using the old Servlet API 2.5 for demonstration purposes.
+  providedCompile 'javax.servlet:servlet-api:2.5'
+  compile 'jstl:jstl:1.2'
+}
+
+jib.from.image = 'gcr.io/distroless/java/jetty:debug'
+jib.to.image = 'gcr.io/chanseok-playground-new/image-built-with-jib'

@@ -57,6 +57,7 @@ public class JavaDockerContextGenerator {
   private static final String RESOURCES_LAYER_DIRECTORY = "resources";
   private static final String CLASSES_LAYER_DIRECTORY = "classes";
   private static final String EXTRA_FILES_LAYER_DIRECTORY = "root";
+  private static final String WAR_LAYER_DIRECTORY = "exploded-war";
 
   /** Represents a Dockerfile {@code COPY} directive. */
   private static class CopyDirective {
@@ -107,6 +108,8 @@ public class JavaDockerContextGenerator {
   private List<String> exposedPorts = Collections.emptyList();
   private Map<String, String> labels = Collections.emptyMap();
 
+  private boolean isWar = false;
+
   /**
    * Constructs a Docker context generator for a Java application.
    *
@@ -134,6 +137,12 @@ public class JavaDockerContextGenerator {
         copyDirectivesBuilder,
         javaLayerConfigurations.getExtraFilesLayerEntry(),
         EXTRA_FILES_LAYER_DIRECTORY);
+    addIfNotEmpty(
+        copyDirectivesBuilder,
+        javaLayerConfigurations.getWarEntry(),
+        WAR_LAYER_DIRECTORY);
+    isWar = !javaLayerConfigurations.getWarEntry().getSourceFiles().isEmpty();
+
     copyDirectives = copyDirectivesBuilder.build();
   }
 
@@ -289,13 +298,17 @@ public class JavaDockerContextGenerator {
       firstLabel = false;
     }
 
-    dockerfile
-        .append("\nENTRYPOINT ")
-        .append(
-            objectMapper.writeValueAsString(
-                JavaEntrypointConstructor.makeDefaultEntrypoint(jvmFlags, mainClass)))
-        .append("\nCMD ")
-        .append(objectMapper.writeValueAsString(javaArguments));
+    if (isWar) {
+      dockerfile.append("\nENTRYPOINT [\"java\",\"-jar\",\"/jetty/start.jar\"]\n");
+    } else {
+      dockerfile
+          .append("\nENTRYPOINT ")
+          .append(
+              objectMapper.writeValueAsString(
+                  JavaEntrypointConstructor.makeDefaultEntrypoint(jvmFlags, mainClass)))
+          .append("\nCMD ")
+          .append(objectMapper.writeValueAsString(javaArguments));
+    }
     return dockerfile.toString();
   }
 }

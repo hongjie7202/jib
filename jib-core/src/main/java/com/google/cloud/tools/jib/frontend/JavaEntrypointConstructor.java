@@ -16,6 +16,7 @@
 
 package com.google.cloud.tools.jib.frontend;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -47,17 +48,18 @@ public class JavaEntrypointConstructor {
    * @param mainClass the name of the main class to run on startup
    * @return a list of the entrypoint tokens
    */
-  public static List<String> makeEntrypoint(
+  @VisibleForTesting
+  static List<String> makeEntrypoint(
       List<String> classpathElements, List<String> jvmFlags, String mainClass) {
     String classpathString = String.join(":", classpathElements);
 
-    List<String> entrypointBuilder = new ArrayList<>(4 + jvmFlags.size());
-    entrypointBuilder.add("java");
-    entrypointBuilder.addAll(jvmFlags);
-    entrypointBuilder.add("-cp");
-    entrypointBuilder.add(classpathString);
-    entrypointBuilder.add(mainClass);
-    return entrypointBuilder;
+    List<String> entrypoint = new ArrayList<>(4 + jvmFlags.size());
+    entrypoint.add("java");
+    entrypoint.addAll(jvmFlags);
+    entrypoint.add("-cp");
+    entrypoint.add(classpathString);
+    entrypoint.add(mainClass);
+    return entrypoint;
   }
 
   private JavaEntrypointConstructor() {}

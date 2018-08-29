@@ -38,6 +38,7 @@ public class ContainerConfiguration {
     @Nullable private ImmutableMap<String, String> environmentMap;
     @Nullable private ImmutableList<Port> exposedPorts;
     @Nullable private ImmutableMap<String, String> labels;
+    @Nullable private String workingDirectory;
 
     /**
      * Sets the image creation time.

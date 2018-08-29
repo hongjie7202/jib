@@ -39,6 +39,7 @@ public class JavaLayerConfigurations {
         "snapshot dependencies", JavaEntrypointConstructor.DEFAULT_DEPENDENCIES_PATH_ON_IMAGE),
     RESOURCES("resources", JavaEntrypointConstructor.DEFAULT_RESOURCES_PATH_ON_IMAGE),
     CLASSES("classes", JavaEntrypointConstructor.DEFAULT_CLASSES_PATH_ON_IMAGE),
+    EXPLODED_WAR("exploded war", "/jetty/webapps/ROOT/"),
     EXTRA_FILES("extra files", "/");
 
     private final String label;
@@ -64,7 +65,7 @@ public class JavaLayerConfigurations {
   /** Builds with each layer's files. */
   public static class Builder {
 
-    private Map<LayerType, List<Path>> layerFilesMap = new EnumMap<>(LayerType.class);
+    private final Map<LayerType, List<Path>> layerFilesMap = new EnumMap<>(LayerType.class);
 
     private Builder() {
       for (LayerType layerType : LayerType.values()) {
@@ -94,6 +95,11 @@ public class JavaLayerConfigurations {
 
     public Builder setExtraFiles(List<Path> extraFiles) {
       layerFilesMap.put(LayerType.EXTRA_FILES, extraFiles);
+      return this;
+    }
+
+    public Builder setExplodedWar(List<Path> explodedWar) {
+      layerFilesMap.put(LayerType.EXPLODED_WAR, explodedWar);
       return this;
     }
 
@@ -146,6 +152,10 @@ public class JavaLayerConfigurations {
 
   public LayerEntry getExtraFilesLayerEntry() {
     return getLayerEntry(LayerType.EXTRA_FILES);
+  }
+
+  public LayerEntry getWarEntry() {
+    return getLayerEntry(LayerType.EXPLODED_WAR);
   }
 
   private LayerEntry getLayerEntry(LayerType layerType) {

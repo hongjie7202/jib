@@ -31,6 +31,8 @@ import com.google.cloud.tools.jib.plugins.common.ConfigurationPropertyValidator;
 import com.google.cloud.tools.jib.plugins.common.DefaultCredentialRetrievers;
 import com.google.cloud.tools.jib.registry.RegistryClient;
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
 import javax.annotation.Nullable;
 import org.gradle.api.GradleException;
 
@@ -85,15 +87,22 @@ class PluginConfigurationProcessor {
         ImageConfiguration.builder(baseImage)
             .setCredentialRetrievers(defaultCredentialRetrievers.asList());
 
-    String mainClass = projectProperties.getMainClass(jibExtension);
+    List<String> entrypoint;
+    boolean isWar = true;
+    if (isWar) {
+      entrypoint = Arrays.asList("java", "-jar", "/jetty/start.jar");
+    } else {
+      String mainClass = projectProperties.getMainClass(jibExtension);
+      entrypoint =
+          JavaEntrypointConstructor.makeDefaultEntrypoint(jibExtension.getJvmFlags(), mainClass);
+    }
     ContainerConfiguration.Builder containerConfigurationBuilder =
         ContainerConfiguration.builder()
-            .setEntrypoint(
-                JavaEntrypointConstructor.makeDefaultEntrypoint(
-                    jibExtension.getJvmFlags(), mainClass))
+            .setEntrypoint(entrypoint)
             .setProgramArguments(jibExtension.getArgs())
             .setExposedPorts(ExposedPortsParser.parse(jibExtension.getExposedPorts()))
             .setLabels(jibExtension.getLabels());
+
     if (jibExtension.getUseCurrentTimestamp()) {
       logger.warn(
           "Setting image creation time to current time; your image may not be reproducible.");

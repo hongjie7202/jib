@@ -107,7 +107,7 @@ public class DockerContextTask extends DefaultTask {
     GradleProjectProperties gradleProjectProperties =
         GradleProjectProperties.getForProject(
             getProject(), gradleJibLogger, jibExtension.getExtraDirectoryPath());
-    String mainClass = gradleProjectProperties.getMainClass(jibExtension);
+    String mainClass = true ? "fakeClass" : gradleProjectProperties.getMainClass(jibExtension);
     String targetDir = getTargetDir();
 
     try {
