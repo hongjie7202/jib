@@ -111,6 +111,7 @@ class PluginConfigurationProcessor {
 
     BuildConfiguration.Builder buildConfigurationBuilder =
         BuildConfiguration.builder(logger)
+            .setCreatedBy("jib-gradle-plugin")
             .setAllowInsecureRegistries(jibExtension.getAllowInsecureRegistries())
             .setLayerConfigurations(
                 projectProperties.getJavaLayerConfigurations().getLayerConfigurations());
