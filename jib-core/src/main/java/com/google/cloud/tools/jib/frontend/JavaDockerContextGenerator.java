@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Predicate;
 import javax.annotation.Nullable;
 
 /**
@@ -108,8 +109,6 @@ public class JavaDockerContextGenerator {
   private List<String> exposedPorts = Collections.emptyList();
   private Map<String, String> labels = Collections.emptyMap();
 
-  private boolean isWar = false;
-
   /**
    * Constructs a Docker context generator for a Java application.
    *
@@ -141,7 +140,6 @@ public class JavaDockerContextGenerator {
         copyDirectivesBuilder,
         javaLayerConfigurations.getWarEntry(),
         WAR_LAYER_DIRECTORY);
-    isWar = !javaLayerConfigurations.getWarEntry().getSourceFiles().isEmpty();
 
     copyDirectives = copyDirectivesBuilder.build();
   }
@@ -298,17 +296,20 @@ public class JavaDockerContextGenerator {
       firstLabel = false;
     }
 
-    if (isWar) {
-      dockerfile.append("\nENTRYPOINT [\"java\",\"-jar\",\"/jetty/start.jar\"]\n");
-    } else {
-      dockerfile
-          .append("\nENTRYPOINT ")
-          .append(
-              objectMapper.writeValueAsString(
-                  JavaEntrypointConstructor.makeDefaultEntrypoint(jvmFlags, mainClass)))
-          .append("\nCMD ")
-          .append(objectMapper.writeValueAsString(javaArguments));
-    }
+    List<String> entrypoint = hasWarLayer()
+        ? JavaEntrypointConstructor.makeDistrolessJettyEntrypoint()
+        : JavaEntrypointConstructor.makeDefaultEntrypoint(jvmFlags, mainClass);
+    dockerfile
+        .append("\nENTRYPOINT ")
+        .append(objectMapper.writeValueAsString(entrypoint))
+        .append("\nCMD ")
+        .append(objectMapper.writeValueAsString(javaArguments));
     return dockerfile.toString();
+  }
+
+  private boolean hasWarLayer() {
+    Predicate<CopyDirective> isWarLayerCopy =
+        directive -> WAR_LAYER_DIRECTORY.equals(directive.directoryInContext);
+    return copyDirectives.stream().anyMatch(isWarLayerCopy);
   }
 }
