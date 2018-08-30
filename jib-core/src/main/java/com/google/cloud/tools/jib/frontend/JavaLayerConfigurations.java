@@ -39,7 +39,7 @@ public class JavaLayerConfigurations {
         "snapshot dependencies", JavaEntrypointConstructor.DEFAULT_DEPENDENCIES_PATH_ON_IMAGE),
     RESOURCES("resources", JavaEntrypointConstructor.DEFAULT_RESOURCES_PATH_ON_IMAGE),
     CLASSES("classes", JavaEntrypointConstructor.DEFAULT_CLASSES_PATH_ON_IMAGE),
-    EXPLODED_WAR("exploded war", "/jetty/webapps/ROOT/"),
+    EXPLODED_WAR("exploded war", JavaEntrypointConstructor.DEFAULT_JETTY_BASE_ON_IMAGE),
     EXTRA_FILES("extra files", "/");
 
     private final String label;

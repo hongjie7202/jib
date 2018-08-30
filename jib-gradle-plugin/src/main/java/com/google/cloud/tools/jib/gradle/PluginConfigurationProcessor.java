@@ -31,7 +31,6 @@ import com.google.cloud.tools.jib.plugins.common.ConfigurationPropertyValidator;
 import com.google.cloud.tools.jib.plugins.common.DefaultCredentialRetrievers;
 import com.google.cloud.tools.jib.registry.RegistryClient;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.gradle.api.GradleException;
@@ -87,14 +86,17 @@ class PluginConfigurationProcessor {
         ImageConfiguration.builder(baseImage)
             .setCredentialRetrievers(defaultCredentialRetrievers.asList());
 
-    List<String> entrypoint;
-    boolean isWar = true;
-    if (isWar) {
-      entrypoint = Arrays.asList("java", "-jar", "/jetty/start.jar");
-    } else {
-      String mainClass = projectProperties.getMainClass(jibExtension);
-      entrypoint =
-          JavaEntrypointConstructor.makeDefaultEntrypoint(jibExtension.getJvmFlags(), mainClass);
+    List<String> entrypoint = jibExtension.getContainer().getEntrypoint();
+    if (entrypoint.isEmpty()) {
+      if (projectProperties.isWarProject()) {
+        entrypoint = JavaEntrypointConstructor.makeDistrolessJettyEntrypoint();
+      } else {
+        String mainClass = projectProperties.getMainClass(jibExtension);
+        entrypoint =
+            JavaEntrypointConstructor.makeDefaultEntrypoint(jibExtension.getJvmFlags(), mainClass);
+      }
+    } else if (jibExtension.getMainClass() != null || !jibExtension.getJvmFlags().isEmpty()) {
+      logger.warn("mainClass and jvmFlags are ignored when entrypoint is specified");
     }
     ContainerConfiguration.Builder containerConfigurationBuilder =
         ContainerConfiguration.builder()
