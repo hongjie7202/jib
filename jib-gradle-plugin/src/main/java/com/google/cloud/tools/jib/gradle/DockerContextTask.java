@@ -114,7 +114,7 @@ public class DockerContextTask extends DefaultTask {
     List<String> entrypoint = jibExtension.getContainer().getEntrypoint();
     if (entrypoint.isEmpty()) {
       if (gradleProjectProperties.isWarProject()) {
-        entrypoint = 
+        entrypoint =
             JavaEntrypointConstructor.makeDistrolessJettyEntrypoint();
       } else {
         String mainClass = gradleProjectProperties.getMainClass(jibExtension);
