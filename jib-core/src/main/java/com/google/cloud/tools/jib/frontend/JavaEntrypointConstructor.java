@@ -38,6 +38,10 @@ public class JavaEntrypointConstructor {
         mainClass);
   }
 
+  public static List<String> makeDistrolessJettyEntrypoint() {
+    return Arrays.asList("java", "-cp", "/jetty/start.jar");
+  }
+
   /**
    * Constructs the container entrypoint.
    *
