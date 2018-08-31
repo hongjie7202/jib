@@ -66,8 +66,12 @@ public class DockerContextMojo extends JibPluginConfiguration {
 
     List<String> entrypoint = getEntrypoint();
     if (entrypoint.isEmpty()) {
-      String mainClass = mavenProjectProperties.getMainClass(this);
-      entrypoint = JavaEntrypointConstructor.makeDefaultEntrypoint(getJvmFlags(), mainClass);
+      if (mavenProjectProperties.isWarProject()) {
+        entrypoint = JavaEntrypointConstructor.makeDistrolessJettyEntrypoint();
+      } else {
+        String mainClass = mavenProjectProperties.getMainClass(this);
+        entrypoint = JavaEntrypointConstructor.makeDefaultEntrypoint(getJvmFlags(), mainClass);
+      }
     } else if (getMainClass() != null || !getJvmFlags().isEmpty()) {
       mavenJibLogger.warn("<mainClass> and <jvmFlags> are ignored when <entrypoint> is specified");
     }

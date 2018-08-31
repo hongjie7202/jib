@@ -113,9 +113,14 @@ public class DockerContextTask extends DefaultTask {
 
     List<String> entrypoint = jibExtension.getContainer().getEntrypoint();
     if (entrypoint.isEmpty()) {
-      String mainClass = gradleProjectProperties.getMainClass(jibExtension);
-      entrypoint =
-          JavaEntrypointConstructor.makeDefaultEntrypoint(jibExtension.getJvmFlags(), mainClass);
+      if (gradleProjectProperties.isWarProject()) {
+        entrypoint =
+            JavaEntrypointConstructor.makeDistrolessJettyEntrypoint();
+      } else {
+        String mainClass = gradleProjectProperties.getMainClass(jibExtension);
+        entrypoint =
+            JavaEntrypointConstructor.makeDefaultEntrypoint(jibExtension.getJvmFlags(), mainClass);
+      }
     } else if (jibExtension.getMainClass() != null || !jibExtension.getJvmFlags().isEmpty()) {
       gradleJibLogger.warn("mainClass and jvmFlags are ignored when entrypoint is specified");
     }

@@ -17,6 +17,7 @@
 package com.google.cloud.tools.jib.gradle;
 
 import com.google.cloud.tools.jib.frontend.JavaLayerConfigurations;
+import com.google.cloud.tools.jib.plugins.common.ZipUtil;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -30,12 +31,44 @@ import org.gradle.api.Project;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.tasks.bundling.War;
 
 /** Builds {@link JavaLayerConfigurations} based on inputs from a {@link Project}. */
 class GradleLayerConfigurations {
 
   /** Name of the `main` {@link SourceSet} to use as source files. */
   private static final String MAIN_SOURCE_SET_NAME = "main";
+
+  static JavaLayerConfigurations getForProject(
+      Project project, GradleJibLogger gradleJibLogger, Path extraDirectory) throws IOException {
+    War war = GradleProjectProperties.getWar(project);
+    if (war != null) {
+      gradleJibLogger.info("War project identified: " + project.getDisplayName());
+      return getForWar(war, gradleJibLogger, extraDirectory);
+    } else {
+      return getForJarProject(project, gradleJibLogger, extraDirectory);
+    }
+  }
+
+  static JavaLayerConfigurations getForWar(
+      War war, GradleJibLogger gradleJibLogger, Path extraDirectory) throws IOException {
+    Path archivePath = war.getArchivePath().toPath();
+    Path explodedWar = Files.createTempDirectory("jib-exploded-war");
+
+    gradleJibLogger.info("Unpacking WAR " + archivePath + " into " + explodedWar);
+    ZipUtil.unzip(archivePath, explodedWar);
+
+    List<Path> warFiles = new ArrayList<>();
+    try (Stream<Path> fileStream = Files.list(explodedWar)) {
+      fileStream.forEach(path -> gradleJibLogger.debug("  " + path));
+      fileStream.forEach(warFiles::add);
+    }
+
+    // Sorts all files by path for consistent ordering.
+    Collections.sort(warFiles);
+
+    return JavaLayerConfigurations.builder().setExplodedWar(warFiles).build();
+  }
 
   /**
    * Resolves the source files configuration for a Gradle {@link Project}.
@@ -46,7 +79,7 @@ class GradleLayerConfigurations {
    * @return a {@link JavaLayerConfigurations} for the layers for the Gradle {@link Project}
    * @throws IOException if an I/O exception occurred during resolution
    */
-  static JavaLayerConfigurations getForProject(
+  static JavaLayerConfigurations getForJarProject(
       Project project, GradleJibLogger gradleJibLogger, Path extraDirectory) throws IOException {
     JavaPluginConvention javaPluginConvention =
         project.getConvention().getPlugin(JavaPluginConvention.class);
