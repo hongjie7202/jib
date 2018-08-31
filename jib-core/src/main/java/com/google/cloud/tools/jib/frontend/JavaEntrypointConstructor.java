@@ -41,7 +41,7 @@ public class JavaEntrypointConstructor {
   /**
    * Constructs the container entrypoint for the gcr.io/distroless/jetty base image.
    *
-   * @return ["java","-jar","/jetty/start.jar"]
+   * @return ["java", "-jar", "/jetty/start.jar"]
    */
   public static List<String> makeDistrolessJettyEntrypoint() {
     return Arrays.asList("java", "-jar", "/jetty/start.jar");

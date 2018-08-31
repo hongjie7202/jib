@@ -154,7 +154,7 @@ public class JavaLayerConfigurations {
     return getLayerEntry(LayerType.EXTRA_FILES);
   }
 
-  public LayerEntry getWarEntry() {
+  public LayerEntry getExplodedWarEntry() {
     return getLayerEntry(LayerType.EXPLODED_WAR);
   }
 

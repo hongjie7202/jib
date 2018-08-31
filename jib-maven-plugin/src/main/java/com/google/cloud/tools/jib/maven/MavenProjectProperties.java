@@ -126,7 +126,7 @@ class MavenProjectProperties implements ProjectProperties {
 
   @Override
   public boolean isWarProject() {
-    return false;  // TODO: to be implemented. For now, assume false.
+    return false; // TODO: to be implemented. For now, assume false.
   }
 
   /**
