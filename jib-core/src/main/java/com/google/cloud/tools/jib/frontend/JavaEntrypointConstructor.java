@@ -16,7 +16,6 @@
 
 package com.google.cloud.tools.jib.frontend;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -39,8 +38,9 @@ public class JavaEntrypointConstructor {
         mainClass);
   }
 
+  /** Constructs the container entrypoint for the gcr.io/distroless/jetty base image. */
   public static List<String> makeDistrolessJettyEntrypoint() {
-    return Arrays.asList("java", "-cp", "/jetty/start.jar");
+    return Arrays.asList("java", "-jar", "/jetty/start.jar");
   }
 
   /**
@@ -53,8 +53,7 @@ public class JavaEntrypointConstructor {
    * @param mainClass the name of the main class to run on startup
    * @return a list of the entrypoint tokens
    */
-  @VisibleForTesting
-  static List<String> makeEntrypoint(
+  public static List<String> makeEntrypoint(
       List<String> classpathElements, List<String> jvmFlags, String mainClass) {
     String classpathString = String.join(":", classpathElements);
 

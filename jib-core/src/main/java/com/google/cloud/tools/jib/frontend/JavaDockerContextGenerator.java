@@ -33,7 +33,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.function.Predicate;
 import javax.annotation.Nullable;
 
 /**
@@ -136,9 +135,7 @@ public class JavaDockerContextGenerator {
         javaLayerConfigurations.getExtraFilesLayerEntry(),
         EXTRA_FILES_LAYER_DIRECTORY);
     addIfNotEmpty(
-        copyDirectivesBuilder,
-        javaLayerConfigurations.getWarEntry(),
-        WAR_LAYER_DIRECTORY);
+        copyDirectivesBuilder, javaLayerConfigurations.getWarEntry(), WAR_LAYER_DIRECTORY);
 
     copyDirectives = copyDirectivesBuilder.build();
   }
@@ -290,14 +287,5 @@ public class JavaDockerContextGenerator {
         .append("\nCMD ")
         .append(objectMapper.writeValueAsString(javaArguments));
     return dockerfile.toString();
-  }
-
-  private List<String> hasWarLayer() {
-    Predicate<CopyDirective> isWarLayerCopy =
-        directive -> WAR_LAYER_DIRECTORY.equals(directive.directoryInContext);
-    boolean hasWarLayer = copyDirectives.stream().anyMatch(isWarLayerCopy);
-    return hasWarLayer
-        ? JavaEntrypointConstructor.makeDistrolessJettyEntrypoint()
-        : JavaEntrypointConstructor.makeDefaultEntrypoint(null /*jvmFlags*/, null /*mainClass*/);
   }
 }

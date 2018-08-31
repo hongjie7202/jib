@@ -48,12 +48,6 @@ class GradleProjectProperties implements ProjectProperties {
   static GradleProjectProperties getForProject(
       Project project, GradleJibLogger gradleJibLogger, Path extraDirectory) {
     try {
-      WarPluginConvention warPluginConvention =
-          project.getConvention().findPlugin(WarPluginConvention.class);
-      if (warPluginConvention != null) {
-      }
-      warPluginConvention.getProject().getTasks().findByName("war");
-
       return new GradleProjectProperties(
           project,
           gradleJibLogger,
@@ -64,6 +58,7 @@ class GradleProjectProperties implements ProjectProperties {
     }
   }
 
+  @Nullable
   static War getWar(Project project) {
     WarPluginConvention warPluginConvention =
         project.getConvention().findPlugin(WarPluginConvention.class);
