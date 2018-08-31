@@ -50,7 +50,7 @@ class GradleLayerConfigurations {
     }
   }
 
-  static JavaLayerConfigurations getForWar(
+  private static JavaLayerConfigurations getForWar(
       War war, GradleJibLogger gradleJibLogger, Path extraDirectory) throws IOException {
     Path archivePath = war.getArchivePath().toPath();
     Path explodedWar = Files.createTempDirectory("jib-exploded-war");
@@ -79,7 +79,7 @@ class GradleLayerConfigurations {
    * @return a {@link JavaLayerConfigurations} for the layers for the Gradle {@link Project}
    * @throws IOException if an I/O exception occurred during resolution
    */
-  static JavaLayerConfigurations getForJarProject(
+  private static JavaLayerConfigurations getForJarProject(
       Project project, GradleJibLogger gradleJibLogger, Path extraDirectory) throws IOException {
     JavaPluginConvention javaPluginConvention =
         project.getConvention().getPlugin(JavaPluginConvention.class);
