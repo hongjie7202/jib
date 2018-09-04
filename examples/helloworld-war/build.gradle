@@ -29,10 +29,21 @@ repositories {
   mavenCentral()
 }
 
+configurations {
+  moreLibs
+}
+
 dependencies {
   // Using the old Servlet API 2.5 for demonstration purposes.
   providedCompile 'javax.servlet:servlet-api:2.5'
-  compile 'jstl:jstl:1.2'
+  //compile 'jstl:jstl:1.2'
+  moreLibs 'jstl:jstl:1.2'
+}
+
+war {
+  from ('src/a')
+  from ('src/b', { into 'js' })
+  //classpath configurations.moreLibs
 }
 
 jib.from.image = 'gcr.io/distroless/java/jetty:debug'
