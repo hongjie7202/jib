@@ -56,12 +56,13 @@ class GradleLayerConfigurations {
       File webAppDir = warPluginConvention.getWebAppDir();
 
       gradleJibLogger.warn("### Web App Dir ###");
-      new DirectoryWalker(webAppDir.toPath()).walk(path -> gradleJibLogger.warn(path.toString()));
+      new DirectoryWalker(webAppDir.toPath())
+          .walk(path -> gradleJibLogger.warn("  " + path.toString()));
 
       gradleJibLogger.warn("### WAR classpath ###");
       FileCollection classpath = war.getClasspath();
       for (File f : classpath) {
-        gradleJibLogger.warn('\t' + f.toString());
+        gradleJibLogger.warn("  " + f.toString());
       }
 
       gradleJibLogger.warn("### Other details ###");
@@ -71,7 +72,7 @@ class GradleLayerConfigurations {
       gradleJibLogger.warn(archivePath.toString());
       // END DEBUGGING CODE
 
-      gradleJibLogger.info("War project identified: " + project.getDisplayName());
+      gradleJibLogger.lifecycle("WAR project identified: " + project.getDisplayName());
       return getForWar(war, gradleJibLogger, extraDirectory);
     } else {
       return getForJarProject(project, gradleJibLogger, extraDirectory);
@@ -107,9 +108,7 @@ class GradleLayerConfigurations {
                 }));
 
     gradleJibLogger.warn("### warFiles ###");
-    for (Path p : warFiles) {
-      gradleJibLogger.warn(p.toString());
-    }
+    warFiles.stream().forEach(p -> gradleJibLogger.warn("  " + p.toString()));
     // END DEBUGGING CODE
 
     return JavaLayerConfigurations.builder().setExplodedWar(warFiles).build();
