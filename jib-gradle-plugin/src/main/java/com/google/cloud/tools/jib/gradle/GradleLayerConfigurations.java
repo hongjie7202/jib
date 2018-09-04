@@ -88,7 +88,6 @@ class GradleLayerConfigurations {
 
     List<Path> warFiles = new ArrayList<>();
     try (Stream<Path> fileStream = Files.list(explodedWar)) {
-      fileStream.forEach(path -> gradleJibLogger.debug("  " + path));
       fileStream.forEach(warFiles::add);
     }
 
