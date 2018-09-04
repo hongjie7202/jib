@@ -97,11 +97,15 @@ class GradleLayerConfigurations {
 
     // BEGIN DEBUGGING CODE
     explodedWar.toFile().deleteOnExit();
-    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-      try {
-        MoreFiles.deleteRecursively(explodedWar, RecursiveDeleteOption.ALLOW_INSECURE);
-      } catch (IOException ex) {} // ignore
-    }));
+    Runtime.getRuntime()
+        .addShutdownHook(
+            new Thread(
+                () -> {
+                  try {
+                    MoreFiles.deleteRecursively(explodedWar, RecursiveDeleteOption.ALLOW_INSECURE);
+                  } catch (IOException ex) {
+                  } // ignore
+                }));
 
     gradleJibLogger.warn("### warFiles ###");
     for (Path p : warFiles) {
