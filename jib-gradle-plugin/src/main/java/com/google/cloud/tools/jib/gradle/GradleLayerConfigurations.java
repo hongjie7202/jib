@@ -48,33 +48,37 @@ class GradleLayerConfigurations {
       Project project, GradleJibLogger gradleJibLogger, Path extraDirectory) throws IOException {
     War war = GradleProjectProperties.getWar(project);
     if (war != null) {
+
+      // BEGIN DEBUGGING CODE
       Convention convention = project.getConvention();
       WarPluginConvention warPluginConvention = convention.getPlugin(WarPluginConvention.class);
 
       File webAppDir = warPluginConvention.getWebAppDir();
 
-        gradleJibLogger.warn("### Web App Dir ###");
-        new DirectoryWalker(webAppDir.toPath()).walk(path -> gradleJibLogger.warn(path.toString()));
+      gradleJibLogger.warn("### Web App Dir ###");
+      new DirectoryWalker(webAppDir.toPath()).walk(path -> gradleJibLogger.warn(path.toString()));
 
-        gradleJibLogger.warn("### WAR classpath ###");
-        FileCollection classpath = war.getClasspath();
-        for (File f : classpath) {
-          gradleJibLogger.warn('\t' + f.toString());
-        }
+      gradleJibLogger.warn("### WAR classpath ###");
+      FileCollection classpath = war.getClasspath();
+      for (File f : classpath) {
+        gradleJibLogger.warn('\t' + f.toString());
+      }
 
-        gradleJibLogger.warn("### Other details ###");
-        gradleJibLogger.warn(war.getDescription());
-        gradleJibLogger.warn(war.getArchiveName());
-        Path archivePath = war.getArchivePath().toPath();
-        gradleJibLogger.warn(archivePath.toString());
+      gradleJibLogger.warn("### Other details ###");
+      gradleJibLogger.warn(war.getDescription());
+      gradleJibLogger.warn(war.getArchiveName());
+      Path archivePath = war.getArchivePath().toPath();
+      gradleJibLogger.warn(archivePath.toString());
+      // END DEBUGGING CODE
 
+      gradleJibLogger.info("War project identified: " + project.getDisplayName());
       return getForWar(war, gradleJibLogger, extraDirectory);
     } else {
       return getForJarProject(project, gradleJibLogger, extraDirectory);
     }
   }
 
-  static JavaLayerConfigurations getForWar(
+  private static JavaLayerConfigurations getForWar(
       War war, GradleJibLogger gradleJibLogger, Path extraDirectory) throws IOException {
     Path archivePath = war.getArchivePath().toPath();
     Path explodedWar = Files.createTempDirectory("jib-exploded-war");
@@ -82,6 +86,16 @@ class GradleLayerConfigurations {
     gradleJibLogger.info("Unpacking WAR " + archivePath + " into " + explodedWar);
     ZipUtil.unzip(archivePath, explodedWar);
 
+    List<Path> warFiles = new ArrayList<>();
+    try (Stream<Path> fileStream = Files.list(explodedWar)) {
+      fileStream.forEach(path -> gradleJibLogger.debug("  " + path));
+      fileStream.forEach(warFiles::add);
+    }
+
+    // Sorts all files by path for consistent ordering.
+    Collections.sort(warFiles);
+
+    // BEGIN DEBUGGING CODE
     explodedWar.toFile().deleteOnExit();
     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
       try {
@@ -89,21 +103,13 @@ class GradleLayerConfigurations {
       } catch (IOException ex) {} // ignore
     }));
 
-    List<Path> warFiles = new ArrayList<>();
-    try (Stream<Path> fileStream = Files.list(explodedWar)) {
-      fileStream.forEach(warFiles::add);
-    }
-
-    Collections.sort(warFiles);
-
     gradleJibLogger.warn("### warFiles ###");
     for (Path p : warFiles) {
       gradleJibLogger.warn(p.toString());
     }
+    // END DEBUGGING CODE
 
-    return JavaLayerConfigurations.builder()
-        .setExplodedWar(warFiles)
-        .build();
+    return JavaLayerConfigurations.builder().setExplodedWar(warFiles).build();
   }
 
   /**
@@ -115,7 +121,7 @@ class GradleLayerConfigurations {
    * @return a {@link JavaLayerConfigurations} for the layers for the Gradle {@link Project}
    * @throws IOException if an I/O exception occurred during resolution
    */
-  static JavaLayerConfigurations getForJarProject(
+  private static JavaLayerConfigurations getForJarProject(
       Project project, GradleJibLogger gradleJibLogger, Path extraDirectory) throws IOException {
     JavaPluginConvention javaPluginConvention =
         project.getConvention().getPlugin(JavaPluginConvention.class);
