@@ -41,7 +41,7 @@ class GradleLayerConfigurations {
 
   static JavaLayerConfigurations getForProject(
       Project project, GradleJibLogger gradleJibLogger, Path extraDirectory) throws IOException {
-    War war = GradleProjectProperties.getWar(project);
+    War war = GradleProjectProperties.getWarTask(project);
     if (war != null) {
       gradleJibLogger.info("War project identified: " + project.getDisplayName());
       return getForWar(war, gradleJibLogger, extraDirectory);
