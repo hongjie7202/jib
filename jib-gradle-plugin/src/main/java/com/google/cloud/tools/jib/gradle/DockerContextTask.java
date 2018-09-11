@@ -18,7 +18,6 @@ package com.google.cloud.tools.jib.gradle;
 
 import com.google.cloud.tools.jib.frontend.ExposedPortsParser;
 import com.google.cloud.tools.jib.frontend.JavaDockerContextGenerator;
-import com.google.cloud.tools.jib.frontend.JavaEntrypointConstructor;
 import com.google.cloud.tools.jib.plugins.common.ConfigurationPropertyValidator;
 import com.google.cloud.tools.jib.plugins.common.HelpfulSuggestions;
 import com.google.common.base.Preconditions;
@@ -111,18 +110,8 @@ public class DockerContextTask extends DefaultTask implements JibTask {
             getProject(), gradleJibLogger, jibExtension.getExtraDirectoryPath());
     String targetDir = getTargetDir();
 
-    List<String> entrypoint = jibExtension.getContainer().getEntrypoint();
-    if (entrypoint.isEmpty()) {
-      if (gradleProjectProperties.isWarProject()) {
-        entrypoint = JavaEntrypointConstructor.makeDistrolessJettyEntrypoint();
-      } else {
-        String mainClass = gradleProjectProperties.getMainClass(jibExtension);
-        entrypoint =
-            JavaEntrypointConstructor.makeDefaultEntrypoint(jibExtension.getJvmFlags(), mainClass);
-      }
-    } else if (jibExtension.getMainClass() != null || !jibExtension.getJvmFlags().isEmpty()) {
-      gradleJibLogger.warn("mainClass and jvmFlags are ignored when entrypoint is specified");
-    }
+    List<String> entrypoint =
+        PluginConfigurationProcessor.computeEntrypoint(gradleJibLogger, jibExtension, gradleProjectProperties);
 
     try {
       // Validate port input, but don't save the output because we don't want the ranges expanded

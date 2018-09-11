@@ -81,18 +81,7 @@ class PluginConfigurationProcessor {
         ImageConfiguration.builder(baseImage)
             .setCredentialRetrievers(defaultCredentialRetrievers.asList());
 
-    List<String> entrypoint = jibExtension.getContainer().getEntrypoint();
-    if (entrypoint.isEmpty()) {
-      if (projectProperties.isWarProject()) {
-        entrypoint = JavaEntrypointConstructor.makeDistrolessJettyEntrypoint();
-      } else {
-        String mainClass = projectProperties.getMainClass(jibExtension);
-        entrypoint =
-            JavaEntrypointConstructor.makeDefaultEntrypoint(jibExtension.getJvmFlags(), mainClass);
-      }
-    } else if (jibExtension.getMainClass() != null || !jibExtension.getJvmFlags().isEmpty()) {
-      logger.warn("mainClass and jvmFlags are ignored when entrypoint is specified");
-    }
+    List<String> entrypoint = computeEntrypoint(logger, jibExtension, projectProperties);
     ContainerConfiguration.Builder containerConfigurationBuilder =
         ContainerConfiguration.builder()
             .setEntrypoint(entrypoint)
@@ -126,6 +115,24 @@ class PluginConfigurationProcessor {
         baseImageConfigurationBuilder,
         containerConfigurationBuilder,
         fromCredential);
+  }
+
+  static List<String> computeEntrypoint(
+      JibLogger logger, JibExtension jibExtension, GradleProjectProperties projectProperties) {
+    List<String> entrypoint = jibExtension.getContainer().getEntrypoint();
+    if (!entrypoint.isEmpty()) {
+      if (jibExtension.getMainClass() != null || !jibExtension.getJvmFlags().isEmpty()) {
+        logger.warn("mainClass and jvmFlags are ignored when entrypoint is specified");
+      }
+      return entrypoint;
+    }
+
+    if (projectProperties.isWarProject()) {
+      return JavaEntrypointConstructor.makeDistrolessJettyEntrypoint();
+    } else {
+      String mainClass = projectProperties.getMainClass(jibExtension);
+      return JavaEntrypointConstructor.makeDefaultEntrypoint(jibExtension.getJvmFlags(), mainClass);
+    }
   }
 
   private final BuildConfiguration.Builder buildConfigurationBuilder;

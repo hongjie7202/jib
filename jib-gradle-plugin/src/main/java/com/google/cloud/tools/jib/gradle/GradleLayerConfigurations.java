@@ -43,7 +43,7 @@ class GradleLayerConfigurations {
       Project project, GradleJibLogger gradleJibLogger, Path extraDirectory) throws IOException {
     War war = GradleProjectProperties.getWarTask(project);
     if (war != null) {
-      gradleJibLogger.info("War project identified: " + project.getDisplayName());
+      gradleJibLogger.info("WAR project identified, creating WAR image: " + project.getDisplayName());
       return getForWar(war, gradleJibLogger, extraDirectory);
     } else {
       return getForJarProject(project, gradleJibLogger, extraDirectory);
@@ -51,21 +51,22 @@ class GradleLayerConfigurations {
   }
 
   private static JavaLayerConfigurations getForWar(
-      War war, GradleJibLogger gradleJibLogger, Path extraDirectory) throws IOException {
+      War war, GradleJibLogger logger, Path extraDirectory) throws IOException {
     Path archivePath = war.getArchivePath().toPath();
     Path explodedWar = Files.createTempDirectory("jib-exploded-war");
 
-    gradleJibLogger.info("Unpacking WAR " + archivePath + " into " + explodedWar);
+    logger.info("Unpacking WAR " + archivePath + " into " + explodedWar);
     ZipUtil.unzip(archivePath, explodedWar);
 
     List<Path> warFiles = new ArrayList<>();
     try (Stream<Path> fileStream = Files.list(explodedWar)) {
-      fileStream.forEach(path -> gradleJibLogger.debug("  " + path));
       fileStream.forEach(warFiles::add);
     }
 
     // Sorts all files by path for consistent ordering.
     Collections.sort(warFiles);
+
+    warFiles.stream().forEach(path -> logger.debug("  " + path));
 
     return JavaLayerConfigurations.builder().setExplodedWar(warFiles).build();
   }
