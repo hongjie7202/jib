@@ -174,7 +174,6 @@ public class JavaDockerContextGenerator {
         copyDirectivesBuilder,
         javaLayerConfigurations.getExtraFilesLayerEntry(),
         EXTRA_FILES_LAYER_DIRECTORY);
-
     copyDirectives = copyDirectivesBuilder.build();
   }
 
