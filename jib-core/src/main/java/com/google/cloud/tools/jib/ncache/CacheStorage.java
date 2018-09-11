@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC. All rights reserved.
+ * Copyright 2018 Google LLC.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -47,10 +47,11 @@ public interface CacheStorage {
   /**
    * Lists all the layer digests stored.
    *
-   * @return the list of layer digests (that can be retrieved via {@link #retrieve}
+   * @return the list of layer digests (that can be retrieved via {@link #retrieve})
+   * @throws CacheCorruptedException if the cache was found to be corrupted
    * @throws IOException if an I/O exception occurs
    */
-  List<DescriptorDigest> listDigests() throws IOException;
+  List<DescriptorDigest> listDigests() throws IOException, CacheCorruptedException;
 
   /**
    * Retrieves the {@link CacheEntry} for the layer with digest {@code layerDigest}.

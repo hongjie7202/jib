@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google Inc.
+ * Copyright 2018 Google LLC.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -46,7 +46,7 @@ class GradleLayerConfigurations {
 
   static JavaLayerConfigurations getForProject(
       Project project, GradleJibLogger gradleJibLogger, Path extraDirectory) throws IOException {
-    War war = GradleProjectProperties.getWar(project);
+    War war = GradleProjectProperties.getWarTask(project);
     if (war != null) {
 
       // BEGIN DEBUGGING CODE

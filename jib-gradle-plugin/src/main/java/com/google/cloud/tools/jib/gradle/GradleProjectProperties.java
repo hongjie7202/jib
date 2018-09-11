@@ -41,7 +41,13 @@ import org.gradle.jvm.tasks.Jar;
 /** Obtains information about a Gradle {@link Project} that uses Jib. */
 class GradleProjectProperties implements ProjectProperties {
 
+  /** Used to generate the User-Agent header and history metadata. */
+  static final String TOOL_NAME = "jib-gradle-plugin";
+
+  /** Used for logging during main class inference. */
   private static final String PLUGIN_NAME = "jib";
+
+  /** Used for logging during main class inference. */
   private static final String JAR_PLUGIN_NAME = "'jar' task";
 
   /** @return a GradleProjectProperties from the given project and logger. */
@@ -59,7 +65,7 @@ class GradleProjectProperties implements ProjectProperties {
   }
 
   @Nullable
-  static War getWar(Project project) {
+  static War getWarTask(Project project) {
     WarPluginConvention warPluginConvention =
         project.getConvention().findPlugin(WarPluginConvention.class);
     if (warPluginConvention == null) {
@@ -119,7 +125,9 @@ class GradleProjectProperties implements ProjectProperties {
 
   @Override
   public boolean isWarProject() {
-    return getWar(project) != null;
+    return getWarTask(project) != null;
+    // TODO: replace with "getWarTask(project) != null" once ready
+    //return false;
   }
 
   /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC. All rights reserved.
+ * Copyright 2018 Google LLC.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -42,7 +42,10 @@ public class JavaEntrypointConstructor {
    * Constructs the container entrypoint for the gcr.io/distroless/jetty base image.
    *
    * @return ["java", "-jar", "/jetty/start.jar"]
+   * @see <a href="https://github.com/GoogleContainerTools/distroless/blob/master/java/jetty/BUILD">
+   *     https://github.com/GoogleContainerTools/distroless/blob/master/java/jetty/BUILD</a>
    */
+  // TODO: inherit CMD and ENTRYPOINT from the base image and remove this.
   public static List<String> makeDistrolessJettyEntrypoint() {
     return Arrays.asList("java", "-jar", "/jetty/start.jar");
   }

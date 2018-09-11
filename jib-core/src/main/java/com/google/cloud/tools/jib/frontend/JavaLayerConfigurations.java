@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC. All rights reserved.
+ * Copyright 2018 Google LLC.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -39,6 +39,8 @@ public class JavaLayerConfigurations {
         "snapshot dependencies", JavaEntrypointConstructor.DEFAULT_DEPENDENCIES_PATH_ON_IMAGE),
     RESOURCES("resources", JavaEntrypointConstructor.DEFAULT_RESOURCES_PATH_ON_IMAGE),
     CLASSES("classes", JavaEntrypointConstructor.DEFAULT_CLASSES_PATH_ON_IMAGE),
+    // TODO: remove this once we put files in WAR into the relevant layers (i.e., dependencies,
+    // snapshot dependencies, resources, and classes layers). Should copy files in the right
     EXPLODED_WAR("exploded war", JavaEntrypointConstructor.DEFAULT_JETTY_BASE_ON_IMAGE),
     EXTRA_FILES("extra files", "/");
 
@@ -98,6 +100,8 @@ public class JavaLayerConfigurations {
       return this;
     }
 
+    // TODO: remove this and put files in WAR into the relevant layers (i.e., dependencies, snapshot
+    // dependencies, resources, and classes layers).
     public Builder setExplodedWar(List<Path> explodedWar) {
       layerFilesMap.put(LayerType.EXPLODED_WAR, explodedWar);
       return this;
@@ -154,6 +158,8 @@ public class JavaLayerConfigurations {
     return getLayerEntry(LayerType.EXTRA_FILES);
   }
 
+  // TODO: remove this once we put files in WAR into the relevant layers (i.e., dependencies,
+  // snapshot dependencies, resources, and classes layers). Should copy files in the right
   public LayerEntry getExplodedWarEntry() {
     return getLayerEntry(LayerType.EXPLODED_WAR);
   }
