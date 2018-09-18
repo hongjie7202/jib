@@ -61,7 +61,7 @@ public class MavenProjectProperties implements ProjectProperties {
       return new MavenProjectProperties(
           project,
           mavenJibLogger,
-          MavenLayerConfigurations.getForProject(project, extraDirectory, appRoot));
+          MavenLayerConfigurations.getForProject(project, mavenJibLogger, extraDirectory, appRoot));
     } catch (IOException ex) {
       throw new MojoExecutionException(
           "Obtaining project build output files failed; make sure you have compiled your project "

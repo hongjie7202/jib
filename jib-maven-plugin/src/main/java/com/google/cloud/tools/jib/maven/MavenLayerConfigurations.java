@@ -34,6 +34,26 @@ import org.apache.maven.project.MavenProject;
 /** Builds {@link JavaLayerConfigurations} based on inputs from a {@link MavenProject}. */
 class MavenLayerConfigurations {
 
+  static JavaLayerConfigurations getForProject(
+      MavenProject project, MavenJibLogger logger, Path extraDirectory, String appRoot)
+      throws IOException {
+    //War war = GradleProjectProperties.getWarTask(project);
+    if (true) {
+      logger.info("WAR project identified, creating WAR image: " + project.getName());
+      return getForWar(project, logger, extraDirectory, appRoot);
+    } else {
+      return getForJarProject(project, extraDirectory, appRoot);
+    }
+  }
+
+  private static JavaLayerConfigurations getForWar(MavenProject project, MavenJibLogger logger,
+      Path extraDirectory, String appRoot) throws IOException {
+    System.out.println(project.getArtifact().getFile());
+
+    appRoot = appRoot.endsWith("/") ? appRoot : appRoot + '/';
+    return JavaLayerConfigurations.builder().build();
+  }
+
   /**
    * Resolves the source files configuration for a {@link MavenProject}.
    *
@@ -43,7 +63,7 @@ class MavenLayerConfigurations {
    * @return a {@link JavaLayerConfigurations} for the project
    * @throws IOException if collecting the project files fails
    */
-  static JavaLayerConfigurations getForProject(
+  static JavaLayerConfigurations getForJarProject(
       MavenProject project, Path extraDirectory, String appRoot) throws IOException {
     Path classesSourceDirectory = Paths.get(project.getBuild().getSourceDirectory());
     Path classesOutputDirectory = Paths.get(project.getBuild().getOutputDirectory());

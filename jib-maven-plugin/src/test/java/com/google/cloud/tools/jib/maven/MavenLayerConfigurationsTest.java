@@ -63,6 +63,7 @@ public class MavenLayerConfigurationsTest {
   @Rule public TestRepository testRepository = new TestRepository();
 
   @Mock private MavenProject mockMavenProject;
+  @Mock private MavenJibLogger mockLogger;
   @Mock private Build mockBuild;
 
   @Before
@@ -114,7 +115,7 @@ public class MavenLayerConfigurationsTest {
 
     JavaLayerConfigurations javaLayerConfigurations =
         MavenLayerConfigurations.getForProject(
-            mockMavenProject, Paths.get("nonexistent/path"), "/app");
+            mockMavenProject, mockLogger, Paths.get("nonexistent/path"), "/app");
     Assert.assertEquals(
         expectedDependenciesFiles,
         getSourceFilesFromLayerEntries(javaLayerConfigurations.getDependencyLayerEntries()));
@@ -135,7 +136,8 @@ public class MavenLayerConfigurationsTest {
     Path extraFilesDirectory = Paths.get(Resources.getResource("layer").toURI());
 
     JavaLayerConfigurations javaLayerConfigurations =
-        MavenLayerConfigurations.getForProject(mockMavenProject, extraFilesDirectory, "/app");
+        MavenLayerConfigurations.getForProject(
+            mockMavenProject, mockLogger, extraFilesDirectory, "/app");
 
     ImmutableList<Path> expectedExtraFiles =
         ImmutableList.of(
@@ -156,7 +158,8 @@ public class MavenLayerConfigurationsTest {
     Path extraFilesDirectory = Paths.get(Resources.getResource("layer").toURI());
 
     JavaLayerConfigurations configuration =
-        MavenLayerConfigurations.getForProject(mockMavenProject, extraFilesDirectory, "/my/app");
+        MavenLayerConfigurations.getForProject(
+            mockMavenProject, mockLogger, extraFilesDirectory, "/my/app");
 
     Assert.assertEquals(
         // on windows, these files may be in a different order, so use Set
