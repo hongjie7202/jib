@@ -48,7 +48,7 @@ public class JavaLayerConfigurations {
     private final String name;
 
     /**
-     * Initializes with a name for the layer and the layer files' default extraction path root.
+     * Initializes with a name for the layer.
      *
      * @param name name to set for the layer; does not affect the contents of the layer
      */
@@ -145,14 +145,20 @@ public class JavaLayerConfigurations {
     return new Builder();
   }
 
+  /**
+   * The default app root in the image. For example, if this is set to {@code "/app"}, dependency
+   * JARs will be in {@code "/app/libs"}.
+   */
+  public static final String DEFAULT_APP_ROOT = "/app";
+
   private final ImmutableMap<LayerType, LayerConfiguration> layerConfigurationMap;
-  private final ImmutableMap<LayerType, String> defaultExtractionPathMap;
+  private final ImmutableMap<LayerType, String> extractionPathMap;
 
   private JavaLayerConfigurations(
-      ImmutableMap<LayerType, LayerConfiguration> layerConfigurationsMap,
-      ImmutableMap<LayerType, String> defaultExtractionPathMap) {
-    layerConfigurationMap = layerConfigurationsMap;
-    this.defaultExtractionPathMap = defaultExtractionPathMap;
+      ImmutableMap<LayerType, LayerConfiguration> layerConfigurationMap,
+      ImmutableMap<LayerType, String> extractionPathMap) {
+    this.layerConfigurationMap = layerConfigurationMap;
+    this.extractionPathMap = extractionPathMap;
   }
 
   public ImmutableList<LayerConfiguration> getLayerConfigurations() {
@@ -185,35 +191,35 @@ public class JavaLayerConfigurations {
     return getLayerEntries(LayerType.EXPLODED_WAR);
   }
 
-  public String getDependencyDefaultExtractionPath() {
-    return getDefaultExtractionPath(LayerType.DEPENDENCIES);
+  public String getDependencyExtractionPath() {
+    return getExtractionPath(LayerType.DEPENDENCIES);
   }
 
-  public String getSnapshotDependencyDefaultExtractionPath() {
-    return getDefaultExtractionPath(LayerType.SNAPSHOT_DEPENDENCIES);
+  public String getSnapshotDependencyExtractionPath() {
+    return getExtractionPath(LayerType.SNAPSHOT_DEPENDENCIES);
   }
 
-  public String getResourceDefaultExtractionPath() {
-    return getDefaultExtractionPath(LayerType.RESOURCES);
+  public String getResourceExtractionPath() {
+    return getExtractionPath(LayerType.RESOURCES);
   }
 
-  public String getClassDefaultExtractionPath() {
-    return getDefaultExtractionPath(LayerType.CLASSES);
+  public String getClassExtractionPath() {
+    return getExtractionPath(LayerType.CLASSES);
   }
 
-  public String getExtraFilesDefaultExtractionPath() {
-    return getDefaultExtractionPath(LayerType.EXTRA_FILES);
+  public String getExtraFilesExtractionPath() {
+    return getExtractionPath(LayerType.EXTRA_FILES);
   }
 
-  public String getExplodedWarDefaultExtractionPath() {
-    return getDefaultExtractionPath(LayerType.EXPLODED_WAR);
+  public String getExplodedWarExtractionPath() {
+    return getExtractionPath(LayerType.EXPLODED_WAR);
   }
 
   private ImmutableList<LayerEntry> getLayerEntries(LayerType layerType) {
     return Preconditions.checkNotNull(layerConfigurationMap.get(layerType)).getLayerEntries();
   }
 
-  private String getDefaultExtractionPath(LayerType layerType) {
-    return Preconditions.checkNotNull(defaultExtractionPathMap.get(layerType));
+  private String getExtractionPath(LayerType layerType) {
+    return Preconditions.checkNotNull(extractionPathMap.get(layerType));
   }
 }
