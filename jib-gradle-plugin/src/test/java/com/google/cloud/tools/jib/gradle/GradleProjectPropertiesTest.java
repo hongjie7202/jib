@@ -58,11 +58,6 @@ public class GradleProjectPropertiesTest {
   public void setup() {
     manifest = new DefaultManifest(mockFileResolver);
     Mockito.when(mockProject.getConvention()).thenReturn(mockConvention);
-    Mockito.when(mockConvention.findPlugin(WarPluginConvention.class))
-        .thenReturn(mockWarPluginConvection);
-    Mockito.when(mockWarPluginConvection.getProject()).thenReturn(mockProject);
-    Mockito.when(mockProject.getTasks()).thenReturn(mockTaskContainer);
-    Mockito.when(mockTaskContainer.findByName("war")).thenReturn(Mockito.mock(War.class));
     Mockito.when(mockJar.getManifest()).thenReturn(manifest);
 
     gradleProjectProperties =
@@ -96,12 +91,22 @@ public class GradleProjectPropertiesTest {
   }
 
   @Test
+  public void testIsWarProject_war() {
+    mockWarProject();
+
+    Assert.assertTrue(gradleProjectProperties.isWarProject());
+  }
+
+  @Test
   public void testGetWar_warProject() {
+    mockWarProject();
+
     Assert.assertNotNull(GradleProjectProperties.getWarTask(mockProject));
   }
 
   @Test
   public void testGetWar_noWarPlugin() {
+    mockWarProject();
     Mockito.when(mockConvention.findPlugin(WarPluginConvention.class)).thenReturn(null);
 
     Assert.assertNull(GradleProjectProperties.getWarTask(mockProject));
@@ -109,8 +114,17 @@ public class GradleProjectPropertiesTest {
 
   @Test
   public void testGetWar_noWarTask() {
+    mockWarProject();
     Mockito.when(mockTaskContainer.findByName("war")).thenReturn(null);
 
     Assert.assertNull(GradleProjectProperties.getWarTask(mockProject));
+  }
+
+  private void mockWarProject() {
+    Mockito.when(mockConvention.findPlugin(WarPluginConvention.class))
+        .thenReturn(mockWarPluginConvection);
+    Mockito.when(mockWarPluginConvection.getProject()).thenReturn(mockProject);
+    Mockito.when(mockProject.getTasks()).thenReturn(mockTaskContainer);
+    Mockito.when(mockTaskContainer.findByName("war")).thenReturn(Mockito.mock(War.class));
   }
 }
