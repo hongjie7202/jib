@@ -18,6 +18,7 @@ package com.google.cloud.tools.jib.maven;
 
 import com.google.cloud.tools.jib.frontend.JavaEntrypointConstructor;
 import com.google.cloud.tools.jib.frontend.JavaLayerConfigurations;
+import com.google.cloud.tools.jib.plugins.common.ZipUtil;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -37,8 +38,7 @@ class MavenLayerConfigurations {
   static JavaLayerConfigurations getForProject(
       MavenProject project, MavenJibLogger logger, Path extraDirectory, String appRoot)
       throws IOException {
-    //War war = GradleProjectProperties.getWarTask(project);
-    if (true) {
+    if ("war".equals(project.getPackaging())) {
       logger.info("WAR project identified, creating WAR image: " + project.getName());
       return getForWar(project, logger, extraDirectory, appRoot);
     } else {
@@ -46,12 +46,26 @@ class MavenLayerConfigurations {
     }
   }
 
-  private static JavaLayerConfigurations getForWar(MavenProject project, MavenJibLogger logger,
-      Path extraDirectory, String appRoot) throws IOException {
-    System.out.println(project.getArtifact().getFile());
+  private static JavaLayerConfigurations getForWar(
+      MavenProject project, MavenJibLogger logger, Path extraDirectory, String appRoot)
+      throws IOException {
+    Path archivePath = project.getArtifact().getFile().toPath();
+    Path explodedWar = Files.createTempDirectory("jib-exploded-war");
 
-    appRoot = appRoot.endsWith("/") ? appRoot : appRoot + '/';
-    return JavaLayerConfigurations.builder().build();
+    logger.info("Unpacking WAR " + archivePath + " into " + explodedWar);
+    ZipUtil.unzip(archivePath, explodedWar);
+
+    List<Path> warFiles = new ArrayList<>();
+    try (Stream<Path> fileStream = Files.list(explodedWar)) {
+      fileStream.forEach(warFiles::add);
+    }
+
+    // Sorts all files by path for consistent ordering.
+    Collections.sort(warFiles);
+
+    warFiles.stream().forEach(path -> logger.debug("  " + path));
+
+    return JavaLayerConfigurations.builder().setExplodedWarFiles(warFiles, appRoot).build();
   }
 
   /**

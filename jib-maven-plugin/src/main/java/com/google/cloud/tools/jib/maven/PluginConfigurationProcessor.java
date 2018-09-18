@@ -123,10 +123,14 @@ class PluginConfigurationProcessor {
 
     List<String> entrypoint = jibPluginConfiguration.getEntrypoint();
     if (entrypoint.isEmpty()) {
-      String mainClass = projectProperties.getMainClass(jibPluginConfiguration);
-      entrypoint =
-          JavaEntrypointConstructor.makeDefaultEntrypoint(
-              jibPluginConfiguration.getAppRoot(), jibPluginConfiguration.getJvmFlags(), mainClass);
+      if (projectProperties.isWarProject()) {
+        entrypoint = JavaEntrypointConstructor.makeDistrolessJettyEntrypoint();
+      } else {
+        String mainClass = projectProperties.getMainClass(jibPluginConfiguration);
+        String appRoot = jibPluginConfiguration.getAppRoot();
+        List<String> jvmFlags = jibPluginConfiguration.getJvmFlags();
+        entrypoint = JavaEntrypointConstructor.makeDefaultEntrypoint(appRoot, jvmFlags, mainClass);
+      }
     } else if (jibPluginConfiguration.getMainClass() != null
         || !jibPluginConfiguration.getJvmFlags().isEmpty()) {
       logger.warn("<mainClass> and <jvmFlags> are ignored when <entrypoint> is specified");
