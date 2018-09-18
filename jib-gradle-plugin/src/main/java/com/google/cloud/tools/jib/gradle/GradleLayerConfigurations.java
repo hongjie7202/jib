@@ -67,7 +67,7 @@ class GradleLayerConfigurations {
     // Sorts all files by path for consistent ordering.
     Collections.sort(warFiles);
 
-    return JavaLayerConfigurations.builder().setExplodedWar(warFiles).build();
+    return JavaLayerConfigurations.builder().setExplodedWarFiles(warFiles).build();
   }
 
   /**
@@ -148,10 +148,10 @@ class GradleLayerConfigurations {
     Collections.sort(extraFiles);
 
     return JavaLayerConfigurations.builder()
-        .setDependenciesFiles(dependenciesFiles)
-        .setSnapshotDependenciesFiles(snapshotDependenciesFiles)
-        .setResourcesFiles(resourcesFiles)
-        .setClassesFiles(classesFiles)
+        .setDependencyFiles(dependenciesFiles)
+        .setSnapshotDependencyFiles(snapshotDependenciesFiles)
+        .setResourceFiles(resourcesFiles)
+        .setClassFiles(classesFiles)
         .setExtraFiles(extraFiles)
         .build();
   }
