@@ -16,6 +16,7 @@
 
 package com.google.cloud.tools.jib.gradle;
 
+import com.google.cloud.tools.jib.frontend.JavaEntrypointConstructor;
 import com.google.cloud.tools.jib.frontend.JavaLayerConfigurations;
 import com.google.cloud.tools.jib.plugins.common.ZipUtil;
 import java.io.File;
@@ -40,18 +41,20 @@ class GradleLayerConfigurations {
   private static final String MAIN_SOURCE_SET_NAME = "main";
 
   static JavaLayerConfigurations getForProject(
-      Project project, GradleJibLogger gradleJibLogger, Path extraDirectory) throws IOException {
+      Project project, GradleJibLogger gradleJibLogger, Path extraDirectory, String appRoot)
+      throws IOException {
     War war = GradleProjectProperties.getWarTask(project);
     if (war != null) {
       gradleJibLogger.info("War project identified: " + project.getDisplayName());
-      return getForWar(war, gradleJibLogger, extraDirectory);
+      return getForWar(war, gradleJibLogger, extraDirectory, appRoot);
     } else {
-      return getForJarProject(project, gradleJibLogger, extraDirectory);
+      return getForJarProject(project, gradleJibLogger, extraDirectory, appRoot);
     }
   }
 
   private static JavaLayerConfigurations getForWar(
-      War war, GradleJibLogger gradleJibLogger, Path extraDirectory) throws IOException {
+      War war, GradleJibLogger gradleJibLogger, Path extraDirectory, String appRoot)
+      throws IOException {
     Path archivePath = war.getArchivePath().toPath();
     Path explodedWar = Files.createTempDirectory("jib-exploded-war");
 
@@ -67,7 +70,7 @@ class GradleLayerConfigurations {
     // Sorts all files by path for consistent ordering.
     Collections.sort(warFiles);
 
-    return JavaLayerConfigurations.builder().setExplodedWarFiles(warFiles).build();
+    return JavaLayerConfigurations.builder().setExplodedWarFiles(warFiles, appRoot).build();
   }
 
   /**
@@ -76,11 +79,13 @@ class GradleLayerConfigurations {
    * @param project the Gradle {@link Project}
    * @param gradleJibLogger the build logger for providing feedback about the resolution
    * @param extraDirectory path to the directory for the extra files layer
+   * @param appRoot root directory in the image where the app will be placed
    * @return a {@link JavaLayerConfigurations} for the layers for the Gradle {@link Project}
    * @throws IOException if an I/O exception occurred during resolution
    */
   private static JavaLayerConfigurations getForJarProject(
-      Project project, GradleJibLogger gradleJibLogger, Path extraDirectory) throws IOException {
+      Project project, GradleJibLogger gradleJibLogger, Path extraDirectory, String appRoot)
+      throws IOException {
     JavaPluginConvention javaPluginConvention =
         project.getConvention().getPlugin(JavaPluginConvention.class);
 
@@ -147,12 +152,21 @@ class GradleLayerConfigurations {
     Collections.sort(classesFiles);
     Collections.sort(extraFiles);
 
+    appRoot = appRoot.endsWith("/") ? appRoot : appRoot + '/';
     return JavaLayerConfigurations.builder()
-        .setDependencyFiles(dependenciesFiles)
-        .setSnapshotDependencyFiles(snapshotDependenciesFiles)
-        .setResourceFiles(resourcesFiles)
-        .setClassFiles(classesFiles)
-        .setExtraFiles(extraFiles)
+        .setDependencyFiles(
+            dependenciesFiles,
+            appRoot + JavaEntrypointConstructor.DEFAULT_RELATIVE_DEPENDENCIES_PATH_ON_IMAGE)
+        .setSnapshotDependencyFiles(
+            snapshotDependenciesFiles,
+            appRoot + JavaEntrypointConstructor.DEFAULT_RELATIVE_DEPENDENCIES_PATH_ON_IMAGE)
+        .setResourceFiles(
+            resourcesFiles,
+            appRoot + JavaEntrypointConstructor.DEFAULT_RELATIVE_RESOURCES_PATH_ON_IMAGE)
+        .setClassFiles(
+            classesFiles,
+            appRoot + JavaEntrypointConstructor.DEFAULT_RELATIVE_CLASSES_PATH_ON_IMAGE)
+        .setExtraFiles(extraFiles, "/")
         .build();
   }
 
