@@ -40,13 +40,13 @@ class MavenLayerConfigurations {
       throws IOException {
     if ("war".equals(project.getPackaging())) {
       logger.info("WAR project identified, creating WAR image: " + project.getName());
-      return getForWar(project, logger, extraDirectory, appRoot);
+      return getForWarProject(project, logger, extraDirectory, appRoot);
     } else {
       return getForJarProject(project, extraDirectory, appRoot);
     }
   }
 
-  private static JavaLayerConfigurations getForWar(
+  private static JavaLayerConfigurations getForWarProject(
       MavenProject project, MavenJibLogger logger, Path extraDirectory, String appRoot)
       throws IOException {
     Path archivePath = project.getArtifact().getFile().toPath();

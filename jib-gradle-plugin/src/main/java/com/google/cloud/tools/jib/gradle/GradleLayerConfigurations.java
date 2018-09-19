@@ -46,13 +46,13 @@ class GradleLayerConfigurations {
     War war = GradleProjectProperties.getWarTask(project);
     if (war != null) {
       logger.info("WAR project identified, creating WAR image: " + project.getDisplayName());
-      return getForWar(war, logger, extraDirectory, appRoot);
+      return getForWarProject(war, logger, extraDirectory, appRoot);
     } else {
       return getForJarProject(project, logger, extraDirectory, appRoot);
     }
   }
 
-  private static JavaLayerConfigurations getForWar(
+  private static JavaLayerConfigurations getForWarProject(
       War war, GradleJibLogger logger, Path extraDirectory, String appRoot) throws IOException {
     Path archivePath = war.getArchivePath().toPath();
     Path explodedWar = Files.createTempDirectory("jib-exploded-war");
